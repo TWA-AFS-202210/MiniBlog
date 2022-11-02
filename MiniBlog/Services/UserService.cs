@@ -1,4 +1,7 @@
-﻿using MiniBlog.Stores;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using MiniBlog.Model;
+using MiniBlog.Stores;
 
 namespace MiniBlog.Services
 {
@@ -11,6 +14,15 @@ namespace MiniBlog.Services
         {
             _articleStore = articleStore;
             _userStore = userStore;
+        }
+        public User Register(User user)
+        {
+            if (!_userStore.GetAll().Exists(_ => user.Name.ToLower() == _.Name.ToLower()))
+            {
+                _userStore.Save(user);
+            }
+
+            return user;
         }
     }
 }

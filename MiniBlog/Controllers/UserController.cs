@@ -21,12 +21,7 @@ namespace MiniBlog.Controllers
         [HttpPost]
         public ActionResult<User> Register(User user)
         {
-            if (!userStore.GetAll().Exists(_ => user.Name.ToLower() == _.Name.ToLower()))
-            {
-                userStore.Save(user);
-            }
-
-            return Created("", user);
+           return Created("", userService.Register(user));
         }
 
         [HttpGet]
