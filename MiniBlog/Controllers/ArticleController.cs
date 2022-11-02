@@ -30,9 +30,9 @@ namespace MiniBlog.Controllers
         [HttpPost]
         public ActionResult<Article> Create(Article article)
         {
-            var articleId = articleService.Create(article);
+            var newArticle = articleService.Create(article);
 
-            return Created("", article);
+            return Created("", newArticle);
         }
 
         [HttpGet("{id}")]
