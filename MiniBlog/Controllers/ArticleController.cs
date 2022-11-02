@@ -24,7 +24,7 @@ namespace MiniBlog.Controllers
         [HttpGet]
         public List<Article> List()
         {
-            return articleStore.GetAll();
+            return articleService.List();
         }
 
         [HttpPost]
