@@ -13,12 +13,14 @@ namespace MiniBlogTest.ControllerTest
     [Collection("IntegrationTest")]
     public class UserControllerTest
     {
+        private IUserStore _userStore = new UserStore();
+        private IArticleStore articleStore = new ArticleStoreContext();
         public UserControllerTest()
-            : base()
-
         {
             UserStoreWillReplaceInFuture.Instance.Init();
             ArticleStoreWillReplaceInFuture.Instance.Init();
+            _userStore.Save(new User("Tom", "asdsad"));
+
         }
 
         [Fact]
@@ -29,7 +31,7 @@ namespace MiniBlogTest.ControllerTest
             response.EnsureSuccessStatusCode();
             var body = await response.Content.ReadAsStringAsync();
             var users = JsonConvert.DeserializeObject<List<User>>(body);
-            Assert.Equal(0, users.Count);
+            Assert.Equal(1, users.Count);
         }
 
         [Fact]
@@ -37,7 +39,7 @@ namespace MiniBlogTest.ControllerTest
         {
             var client = GetClient();
 
-            var userName = "Tom";
+            var userName = "lwr";
             var email = "a@b.com";
             var user = new User(userName, email);
             var userJson = JsonConvert.SerializeObject(user);
@@ -49,9 +51,9 @@ namespace MiniBlogTest.ControllerTest
             Assert.Equal(HttpStatusCode.Created, registerResponse.StatusCode);
 
             var users = await GetUsers(client);
-            Assert.Single(users);
-            Assert.Equal(email, users[0].Email);
-            Assert.Equal(userName, users[0].Name);
+            
+            Assert.Equal(email, users.Last().Email);
+            Assert.Equal(userName, users.Last().Name);
         }
 
         [Fact]
@@ -148,10 +150,19 @@ namespace MiniBlogTest.ControllerTest
             await client.PostAsync("/article", registerUserContent);
         }
 
-        private static HttpClient GetClient()
+        private HttpClient GetClient()
         {
             var factory = new WebApplicationFactory<Program>();
-            return factory.CreateClient();
+            return factory.WithWebHostBuilder(builder =>
+            {
+                builder.ConfigureServices(services =>
+                    {
+                        services.AddSingleton(this._userStore);
+                        services.AddSingleton(this.articleStore);
+                    }
+                    );
+            }).CreateClient();
         }
+       
     }
 }

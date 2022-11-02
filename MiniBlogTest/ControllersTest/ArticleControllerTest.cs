@@ -14,6 +14,8 @@
     public class ArticleControllerTest
     {
         private IArticleStore articleStore = new ArticleStoreContext();
+        private IUserStore _userStore = new UserStore();
+
         public ArticleControllerTest()
         {
             UserStoreWillReplaceInFuture.Instance.Init();
@@ -93,7 +95,11 @@
             var factory = new WebApplicationFactory<Program>();
             return factory.WithWebHostBuilder(builder =>
             {
-                builder.ConfigureServices(services => services.AddSingleton(this.articleStore));
+                builder.ConfigureServices(services =>
+                {
+                    services.AddSingleton(this.articleStore);
+                    services.AddSingleton(this._userStore);
+                });
             }).CreateClient();
         }
     }

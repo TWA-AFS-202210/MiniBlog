@@ -29,13 +29,13 @@ namespace MiniBlog.Controllers
         [HttpGet]
         public List<User> GetAll()
         {
-            return UserStoreWillReplaceInFuture.Instance.GetAll();
+            return userStore.GetAll();
         }
 
         [HttpPut]
         public User Update(User user)
         {
-            var foundUser = UserStoreWillReplaceInFuture.Instance.GetAll().FirstOrDefault(_ => _.Name == user.Name);
+            var foundUser = userStore.GetAll().FirstOrDefault(_ => _.Name == user.Name);
             if (foundUser != null)
             {
                 foundUser.Email = user.Email;
@@ -47,10 +47,10 @@ namespace MiniBlog.Controllers
         [HttpDelete]
         public User Delete(string name)
         {
-            var foundUser = UserStoreWillReplaceInFuture.Instance.GetAll().FirstOrDefault(_ => _.Name == name);
+            var foundUser = userStore.GetAll().FirstOrDefault(_ => _.Name == name);
             if (foundUser != null)
             {
-                UserStoreWillReplaceInFuture.Instance.Delete(foundUser);
+                userStore.Delete(foundUser);
                 var articles = articleStore.GetAll()
                     .Where(article => article.UserName == foundUser.Name)
                     .ToList();
@@ -63,7 +63,7 @@ namespace MiniBlog.Controllers
         [HttpGet("{name}")]
         public User GetByName(string name)
         {
-            return UserStoreWillReplaceInFuture.Instance.GetAll().FirstOrDefault(_ =>
+            return userStore.GetAll().FirstOrDefault(_ =>
                 string.Equals(_.Name, name, StringComparison.CurrentCultureIgnoreCase)) ?? throw new
                 InvalidOperationException();
         }
