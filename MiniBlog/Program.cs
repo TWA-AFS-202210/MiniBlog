@@ -11,6 +11,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSingleton<IArticleStore, ArticleStoreContext>();
 builder.Services.AddSingleton<IUserStore, UserStore>();
 builder.Services.AddSingleton<ArticleService>();
+builder.Services.AddSingleton<UserService>();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
