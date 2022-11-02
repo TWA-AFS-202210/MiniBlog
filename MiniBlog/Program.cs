@@ -1,3 +1,4 @@
+using MiniBlog.Services;
 using MiniBlog.Stores;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,7 +10,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSingleton<IArticleStore, ArticleStoreContext>();
 builder.Services.AddSingleton<IUserStore, UserStore>();
-builder.Services.AddSingleton();
+builder.Services.AddSingleton<ArticleService>();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
