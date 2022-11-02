@@ -33,6 +33,12 @@ namespace MiniBlog.Services
         {
             return _articleStore.GetAll();
         }
+        public Article GetById(Guid id)
+        {
+            var foundArticle =
+                _articleStore.GetAll().FirstOrDefault(article => article.Id == id);
+            return foundArticle;
+        }
 
     }
 }
