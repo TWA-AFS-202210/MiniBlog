@@ -16,34 +16,27 @@ namespace MiniBlog.Controllers
         private IArticleStore _articleStore;
         private IUserStore _userStore;
         private IArticleService _articleService;
+        private IUserService _userService;
 
-        public ArticleController(IArticleStore articleStore, IUserStore userStore, IArticleService articleService, )
+        public ArticleController(IArticleStore articleStore, IUserStore userStore, IArticleService articleService,IUserService userService )
         {
             this._articleStore = articleStore;
             this._userStore = userStore;
             this._articleService = articleService;
+            this._userService = userService;
         }
 
         [HttpGet]
-        public List<Article> List()
+        public ActionResult<List<Article>> List()
         {
-            return this._articleStore.GetAll();
+            return Ok(this._articleService.GetAllArticles());
         }
 
         [HttpPost]
         public ActionResult<Article> Create(Article article)
         {
-            if (article.UserName != null)
-            {
-                if (!_userStore.GetAll().Exists(_ => article.UserName == _.Name))
-                {
-                    _userStore.Save(new User(article.UserName));
-                }
-
-                this._articleStore.Save(article);
-            }
-
-            return new CreatedResult($"/articles/{article.Id}", article);
+            var newArticle = _articleService.CreateArticle(article);
+            return new CreatedResult($"/articles/{newArticle.Id}", newArticle);
         }
 
         [HttpGet("{id}")]
@@ -57,7 +50,7 @@ namespace MiniBlog.Controllers
 
             catch (NullReferenceException e)
             {
-                return NotFound();
+                return NotFound(e.Message);
             }
         }
     }

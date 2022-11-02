@@ -30,18 +30,19 @@ public class UserService : IUserService
         return _userStore.GetAll();
     }
 
-    public User? UpdateUser(User user)
+    public User UpdateUser(User user)
     {
         var foundUser = _userStore.GetAll().FirstOrDefault(_ => _.Name == user.Name);
         if (foundUser != null)
         {
             foundUser.Email = user.Email;
+            return foundUser;
         }
 
-        return foundUser;
+        throw new NullReferenceException("User not found");
     }
 
-    public bool DeleteUser(string name)
+    public void DeleteUser(string name)
     {
         var foundUser = _userStore.GetAll().FirstOrDefault(_ => _.Name == name);
         if (foundUser != null)
@@ -51,15 +52,21 @@ public class UserService : IUserService
                 .Where(article => article.UserName == foundUser.Name)
                 .ToList();
             articles.ForEach(article => _articleStore.Delete(article));
-            return true;
+            return;
         }
 
-        return false;
+        throw new NullReferenceException("User not found");
     }
 
-    public User? GetUserByName(string name)
+    public User GetUserByName(string name)
     {
-        return _userStore.GetAll()
+        var userByFind =  _userStore.GetAll()
             .FirstOrDefault(_ => string.Equals(_.Name, name, StringComparison.CurrentCultureIgnoreCase));
+        if (userByFind != null)
+        {
+            return userByFind;
+        }
+
+        throw new NullReferenceException("User not found");
     }
 }

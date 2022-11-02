@@ -7,6 +7,6 @@ public interface IUserService
     User? RegisterUser(User user);
     List<User> GetAllUsers();
     User? UpdateUser(User user);
-    bool DeleteUser(string name);
+    void DeleteUser(string name);
     User? GetUserByName(string name);
 }
