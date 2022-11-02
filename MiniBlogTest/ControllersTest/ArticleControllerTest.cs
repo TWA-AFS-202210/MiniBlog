@@ -1,32 +1,43 @@
-﻿namespace MiniBlogTest.ControllerTest
-{
-    using System.Net;
-    using System.Net.Mime;
-    using System.Text;
-    using Microsoft.AspNetCore.Mvc.Testing;
-    using MiniBlog.Model;
-    using MiniBlog.Stores;
-    using Moq;
-    using Newtonsoft.Json;
-    using Xunit;
+﻿using System.Net;
+using System.Net.Mime;
+using System.Text;
+using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.DependencyInjection;
+using MiniBlog.Model;
+using MiniBlog.Stores;
+using Moq;
+using Newtonsoft.Json;
+using Xunit;
 
+namespace MiniBlogTest.ControllersTest
+{
     [Collection("IntegrationTest")]
     public class ArticleControllerTest
     {
-        private IArticleStore articleStoreForTest = new ArticleStoreContext();
-        private IUserStore userStoreForTest = new UserStoreContext();
-
+        private readonly IArticleStore _articleStore;
         public ArticleControllerTest()
         {
-
-            this.articleStoreForTest.Save(new Article(null, "Happy new year", "Happy 2021 new year"));
-            this.articleStoreForTest.Save(new Article(null, "Happy Halloween", "Halloween is coming"));
+            _articleStore = new ArticleStoreContext();
+            _articleStore.Save(new Article(null, "Happy new year", "Happy 2021 new year"));
+            _articleStore.Save(new Article(null, "Happy Halloween", "Halloween is coming"));
+        }
+        private HttpClient GetHttpClient()
+        {
+            var factory = new WebApplicationFactory<Program>();
+            var client = factory.WithWebHostBuilder(builder =>
+            {
+                builder.ConfigureServices(services =>
+                {
+                    services.AddSingleton(_articleStore);
+                });
+            }).CreateClient();
+            return client;
         }
 
         [Fact]
         public async void Should_get_all_Article()
         {
-            var client = GetClient();
+            var client = GetHttpClient();
             var response = await client.GetAsync("/article");
             response.EnsureSuccessStatusCode();
             var body = await response.Content.ReadAsStringAsync();
@@ -37,16 +48,16 @@
         [Fact]
         public async void Should_create_article_fail_when_ArticleStore_unavailable()
         {
-            var articleStoreMocker = new Mock<IArticleStore>();
-            articleStoreMocker.Setup(store => store.Save(It.IsAny<Article>())).Throws<Exception>();
+            var articleStoreMock = new Mock<IArticleStore>();
+            articleStoreMock.Setup(_ => _.Save(It.IsAny<Article>())).Throws<Exception>();
             var factory = new WebApplicationFactory<Program>();
             var client = factory.WithWebHostBuilder(builder =>
             {
                 builder.ConfigureServices(services =>
-                    services.AddSingleton(serviceProvider => articleStoreMocker.Object));
+                {
+                    services.AddSingleton(articleStoreMock.Object);
+                });
             }).CreateClient();
-
-            //var client = GetClient();
             string userNameWhoWillAdd = "Tom";
             string articleContent = "What a good day today!";
             string articleTitle = "Good day";
@@ -61,7 +72,7 @@
         [Fact]
         public async void Should_create_article_and_register_user_correct()
         {
-            var client = GetClient();
+            var client = GetHttpClient();
             string userNameWhoWillAdd = "Tom";
             string articleContent = "What a good day today!";
             string articleTitle = "Good day";
@@ -89,17 +100,6 @@
             Assert.Equal(1, users.Count);
             Assert.Equal(userNameWhoWillAdd, users[0].Name);
             Assert.Equal("anonymous@unknow.com", users[0].Email);
-        }
-
-        private HttpClient GetClient(object obj)
-        {
-            var factory = new WebApplicationFactory<Program>();
-            var client = factory.WithWebHostBuilder(builder =>
-            {
-                builder.ConfigureServices(services =>
-                    services.AddSingleton(serviceProvider => obj));
-            }).CreateClient();
-            return client;
         }
     }
 }

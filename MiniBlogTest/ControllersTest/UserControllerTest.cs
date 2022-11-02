@@ -1,3 +1,6 @@
+using Microsoft.Extensions.DependencyInjection;
+using Moq;
+
 namespace MiniBlogTest.ControllerTest
 {
     using System.Net;
@@ -12,14 +15,16 @@ namespace MiniBlogTest.ControllerTest
     [Collection("IntegrationTest")]
     public class UserControllerTest
     {
+        private readonly IArticleStore _articleStore;
+        private readonly IUserStore _userStore;
 
-        private IArticleStore _articleStore;
-        public UserControllerTest(IArticleStore articleStore)
-            : base()
 
+        public UserControllerTest()
         {
-            UserStoreWillReplaceInFuture.Instance.Init();
-            _articleStore = articleStore
+            _articleStore = new ArticleStoreContext();
+            _userStore = new UserStoreContext();
+            _articleStore.Save(new Article(null, "Happy new year", "Happy 2021 new year"));
+            _articleStore.Save(new Article(null, "Happy Halloween", "Halloween is coming"));
         }
 
         [Fact]
@@ -58,7 +63,16 @@ namespace MiniBlogTest.ControllerTest
         [Fact]
         public async Task Should_register_user_fail_when_UserStore_unavailable()
         {
-            var client = GetClient();
+            var userStoreMock = new Mock<IUserStore>();
+            userStoreMock.Setup(_ => _.Save(It.IsAny<User>())).Throws<Exception>();
+            var factory = new WebApplicationFactory<Program>();
+            var client = factory.WithWebHostBuilder(builder =>
+            {
+                builder.ConfigureServices(services =>
+                {
+                    services.AddSingleton(userStoreMock.Object);
+                });
+            }).CreateClient();
 
             var userName = "Tom";
             var email = "a@b.com";
@@ -143,10 +157,18 @@ namespace MiniBlogTest.ControllerTest
             await client.PostAsync("/article", registerUserContent);
         }
 
-        private static HttpClient GetClient()
+        private HttpClient GetClient()
         {
             var factory = new WebApplicationFactory<Program>();
-            return factory.CreateClient();
+            var client = factory.WithWebHostBuilder(builder =>
+            {
+                builder.ConfigureServices(services =>
+                {
+                    services.AddSingleton(_articleStore);
+                    services.AddSingleton(_userStore);
+                });
+            }).CreateClient();
+            return client;
         }
     }
 }
