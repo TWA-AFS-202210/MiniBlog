@@ -22,7 +22,7 @@ namespace MiniBlog.Controllers
             this.articleService = articleService;
         }
         [HttpGet]
-        public List<Article> List()
+        public ActionResult<List<Article>> List()
         {
             return articleService.List();
         }
@@ -36,7 +36,7 @@ namespace MiniBlog.Controllers
         }
 
         [HttpGet("{id}")]
-        public Article GetById(Guid id)
+        public ActionResult<Article> GetById(Guid id)
         {
             return articleService.GetById(id);
         }
