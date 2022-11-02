@@ -12,13 +12,9 @@ namespace MiniBlog.Controllers
     [Route("[controller]")]
     public class ArticleController : ControllerBase
     {
-        private IArticleStore articleStore;
-        private IUserStore userStore;
         private ArticleService articleService;
-        public ArticleController(IArticleStore articleStore,IUserStore userStore, ArticleService articleService)
+        public ArticleController(ArticleService articleService)
         {
-            this.articleStore = articleStore;
-            this.userStore = userStore;
             this.articleService = articleService;
         }
         [HttpGet]
