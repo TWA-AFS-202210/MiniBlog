@@ -44,11 +44,9 @@ namespace MiniBlog.Controllers
         }
 
         [HttpGet("{name}")]
-        public User GetByName(string name)
+        public ActionResult<User> GetByName(string name)
         {
-            return userStore.GetAll().FirstOrDefault(_ =>
-                string.Equals(_.Name, name, StringComparison.CurrentCultureIgnoreCase)) ?? throw new
-                InvalidOperationException();
+            return Ok(userService.GetByName(name));
         }
     }
 }
