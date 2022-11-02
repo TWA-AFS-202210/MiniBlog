@@ -8,15 +8,22 @@ namespace MiniBlog.Controllers
     [Route("[controller]")]
     public class UserController : ControllerBase
     {
-        [HttpPost]
-        public User Register(User user)
+        private IArticleStore articleStore;
+        private IUserStore userStore;
+        public UserController(IArticleStore articleStore, IUserStore userStore)
         {
-            if (!UserStoreWillReplaceInFuture.Instance.GetAll().Exists(_ => user.Name.ToLower() == _.Name.ToLower()))
+            this.articleStore = articleStore;
+            this.userStore = userStore;
+        }
+        [HttpPost]
+        public ActionResult<User> Register(User user)
+        {
+            if (!userStore.GetAll().Exists(_ => user.Name.ToLower() == _.Name.ToLower()))
             {
-                UserStoreWillReplaceInFuture.Instance.Save(user);
+                userStore.Save(user);
             }
 
-            return user;
+            return Created("", user);
         }
 
         [HttpGet]
@@ -44,10 +51,10 @@ namespace MiniBlog.Controllers
             if (foundUser != null)
             {
                 UserStoreWillReplaceInFuture.Instance.Delete(foundUser);
-                var articles = ArticleStoreWillReplaceInFuture.Instance.GetAll()
+                var articles = articleStore.GetAll()
                     .Where(article => article.UserName == foundUser.Name)
                     .ToList();
-                articles.ForEach(article => ArticleStoreWillReplaceInFuture.Instance.Delete(article));
+                articles.ForEach(article => articleStore.Delete(article));
             }
 
             return foundUser;
