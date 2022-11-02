@@ -2,16 +2,9 @@ namespace MiniBlog.Stores
 {
     using Model;
 
-    public class UserStoreWillReplaceInFuture
+    public class UserStoreContext : IUserStore
     {
-        private List<User> users;
-
-        public static readonly UserStoreWillReplaceInFuture Instance = new UserStoreWillReplaceInFuture();
-
-        private UserStoreWillReplaceInFuture()
-        {
-            Init();
-        }
+        private List<User> users = new List<User>();
 
         public List<User> GetAll()
         {
@@ -29,9 +22,5 @@ namespace MiniBlog.Stores
             return this.users.Remove(user);
         }
 
-        public void Init()
-        {
-            users = new List<User>();
-        }
     }
 }

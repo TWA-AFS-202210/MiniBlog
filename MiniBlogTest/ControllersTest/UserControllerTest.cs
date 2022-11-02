@@ -12,12 +12,14 @@ namespace MiniBlogTest.ControllerTest
     [Collection("IntegrationTest")]
     public class UserControllerTest
     {
-        public UserControllerTest()
+
+        private IArticleStore _articleStore;
+        public UserControllerTest(IArticleStore articleStore)
             : base()
 
         {
             UserStoreWillReplaceInFuture.Instance.Init();
-            ArticleStoreWillReplaceInFuture.Instance.Init();
+            _articleStore = articleStore
         }
 
         [Fact]
