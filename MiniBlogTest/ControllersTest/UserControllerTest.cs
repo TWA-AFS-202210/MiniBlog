@@ -81,7 +81,7 @@ namespace MiniBlogTest.ControllerTest
 
             StringContent content = new StringContent(userJson, Encoding.UTF8, MediaTypeNames.Application.Json);
             var registerResponse = await client.PostAsync("/user", content);
-            Assert.Equal(HttpStatusCode.InternalServerError, registerResponse.StatusCode);
+            Assert.Equal(HttpStatusCode.Conflict, registerResponse.StatusCode);
         }
 
         [Fact]
