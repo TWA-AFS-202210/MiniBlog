@@ -1,4 +1,5 @@
-﻿using MiniBlog.Model;
+﻿using System.Data;
+using MiniBlog.Model;
 using MiniBlog.Stores;
 
 namespace MiniBlog.Services;
@@ -22,7 +23,7 @@ public class UserService : IUserService
             return user;
         }
 
-        return null;
+        throw new NullReferenceException("user already existed.");
     }
 
     public List<User> GetAllUsers()

@@ -9,28 +9,26 @@ namespace MiniBlog.Controllers
     [Route("[controller]")]
     public class UserController : ControllerBase
     {
-        private IArticleStore _articleStore;
-        private IUserStore _userStore;
-        private IArticleService _articleService;
         private IUserService _userService;
 
-        public UserController(IArticleStore articleStore, IUserStore userStore, IArticleService articleService, IUserService userService)
+        public UserController(IUserService userService)
         {
-            this._articleStore = articleStore;
-            this._userStore = userStore;
-            this._articleService = articleService;
             this._userService = userService;
         }
 
         [HttpPost]
         public ActionResult<User> Register(User user)
         {
-            if (!_userStore.GetAll().Exists(_ => user.Name.ToLower() == _.Name.ToLower()))
+            try
             {
-                _userStore.Save(user);
+                var newUser = _userService.RegisterUser(user);
+                return new CreatedResult($"User/{user.Name}", newUser);
+            }
+            catch (NullReferenceException e)
+            {
+                return Conflict(e.Message);
             }
 
-            return new CreatedResult($"User/{user.Name}", user);
         }
 
         [HttpGet]
